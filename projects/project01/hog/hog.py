@@ -43,7 +43,8 @@ def free_bacon(score):
     # Trim pi to only (score + 1) digit(s)
     # BEGIN PROBLEM 2
     "*** YOUR CODE HERE ***"
-    pi //= (100 - score)
+    num = (100 - score)
+    pi //= pow(10, num)
     # END PROBLEM
 
     return pi % 10 + 3
@@ -64,7 +65,10 @@ def take_turn(num_rolls, opponent_score, dice=six_sided):
     assert opponent_score < 100, 'The game should be over.'
     # BEGIN PROBLEM 3
     "*** YOUR CODE HERE ***"
-
+    if num_rolls > 0:
+        return roll_dice(num_rolls, dice)
+    else:
+        return free_bacon(opponent_score)
     # END PROBLEM 3
 
 
@@ -89,7 +93,7 @@ def swine_align(player_score, opponent_score):
     "*** YOUR CODE HERE ***"
     def gcd(a, b):
         if b == 0:
-           return a
+          return a
         return gcd(b, a % b)
     GCD = gcd(player_score,opponent_score)
     if player_score == 0 or opponent_score == 0:
@@ -163,6 +167,23 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
     who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
+    while True:
+        if who == 0:
+            num_roils = strategy0(score0, score1)   # 玩家0的策略，turn为回合数
+            score0 += take_turn(num_roils, score1, dice)  # 判断是否触发free_bacon,骰子数为0触发，否则返回总分=骰子数*回合数
+            say = say(score0, score1)  # 打印双方分数
+            if score0 >= goal or score1 >= goal:
+                break
+            if not extra_turn(score0, score1):  # 判断是否有额外回合,没有就退出，并通过who = other(who),将who置为另一玩家
+                who = other(who)  # who = 1
+        if who == 1:
+            num_roils = strategy1(score1, score0)
+            score1 += take_turn(num_roils, score0, dice)
+            say = say(score0, score1)
+            if score0 >= goal or score1 >= goal:
+                break
+            if not extra_turn(score1, score0):
+                who = other(who)
     # END PROBLEM 5
     # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
     # BEGIN PROBLEM 6
@@ -251,6 +272,14 @@ def announce_highest(who, last_score=0, running_high=0):
     assert who == 0 or who == 1, 'The who argument should indicate a player.'
     # BEGIN PROBLEM 7
     "*** YOUR CODE HERE ***"
+    def say(*scores):
+        assert len(scores) == 2
+        gain = scores[who] - last_score
+        if gain > running_high:
+            print(gain, "point(s)! The most yet for Player", who)
+            return announce_highest(who, scores[who], gain)
+        return announce_highest(who, scores[who], running_high)
+    return say
     # END PROBLEM 7
 
 
@@ -291,6 +320,11 @@ def make_averaged(original_function, trials_count=1000):
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+
+    def new_func(*args):
+        res = [original_function(*args) for i in range(trials_count)]
+        return sum(res)/trials_count
+    return new_func
     # END PROBLEM 8
 
 
@@ -305,6 +339,10 @@ def max_scoring_num_rolls(dice=six_sided, trials_count=1000):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    ma = make_averaged(roll_dice, trials_count)
+    trials = [ma(i, dice)for i in range(1, 11)]
+    return trials.index(max(trials)) + 1
+
     # END PROBLEM 9
 
 
@@ -354,7 +392,8 @@ def bacon_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     rolls NUM_ROLLS otherwise.
     """
     # BEGIN PROBLEM 10
-    return 6  # Replace this statement
+
+    return 0 if free_bacon(opponent_score) >= cutoff else num_rolls  # Replace this statement
     # END PROBLEM 10
 
 
@@ -364,7 +403,13 @@ def extra_turn_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     Otherwise, it rolls NUM_ROLLS.
     """
     # BEGIN PROBLEM 11
-    return 6  # Replace this statement
+    score_add = free_bacon(opponent_score)
+    score_all = score_add + score
+    result = extra_turn(score_all, opponent_score)
+    if(bacon_strategy(score=score, opponent_score=opponent_score, cutoff=cutoff, num_rolls=num_rolls) == 0) or result:
+        return 0
+    else:
+        return num_rolls  # Replace this statement
     # END PROBLEM 11
 
 
