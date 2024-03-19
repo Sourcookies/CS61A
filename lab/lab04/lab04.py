@@ -118,12 +118,23 @@ def max_subseq(n, t):
     "*** YOUR CODE HERE ***"
     if n == 0 or t == 0:
         return 0
+    """
+    Solution one
     with_last = max_subseq(n//10, t - 1)*10 + n%10
     without_last = max_subseq(n//10, t)
     if with_last > without_last:
         return with_last
     else:
         return without_last
+        
+    Solution two    
+    """
+    # n = 123 ; t = 2
+    last_digit = n % 10  # 3
+    rest = n // 10       # 12
+    keep_last_digit = max_subseq(rest, t - 1) * 10 + last_digit   # 23
+    drop_last_digit = max_subseq(rest, t)   # 12
+    return max(keep_last_digit, drop_last_digit)
 
 def add_chars(w1, w2):
     """
