@@ -181,6 +181,7 @@ class ThrowerAnt(Ant):
         while pos.entrance is not None:
             if steps_cnt > self.max_range:
                 return None
+
             if pos is not beehive:
                 if len(pos.bees) > 0 and steps_cnt >= self.min_range:
                     return rANTdom_else_none(pos.bees)
