@@ -107,6 +107,10 @@ class Name(Expr):
         None
         """
         "*** YOUR CODE HERE ***"
+        """>>>Name('a').eval(env)
+              self.var_name= 'a'
+              wif 'a' in env(字典)  
+        """
         if self.var_name in env:
             return env[self.var_name]
 
